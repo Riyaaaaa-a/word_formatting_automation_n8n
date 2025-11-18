@@ -1,0 +1,285 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "43fa92f3-9803-4298-83d8-edf3e86c3ec3",
+      "name": "When chat message received",
+      "webhookId": "700158b6-5b3e-444d-907d-e5e942c1e273"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a Google Docs API expert. Convert ANY user formatting request into a valid `batchUpdate` JSON.\n\nINPUT:\n- Document ID: {{ $json.documentId }}\n- User format request: {{ $('Code in JavaScript').item.json.formatString }}\n- \nRULES:\n- 1. Use EXACT documentLength in EVERY range: { startIndex: 1, endIndex: {{ $json.content.length-1. }} }\n- 1. Alignment:\n   - left → \"alignment\": \"START\"\n   - center → \"alignment\": \"CENTER\"\n   - right → \"alignment\": \"END\"\n   - justify → \"alignment\": \"JUSTIFIED\"\nTASK:\n1. Parse the user's format string (e.g., \"make it bold, red, 18px, centered, Times New Roman, double spaced\").\n\n3. Support ANY Google Docs formatting:\n   - Font size (px → pt: 1px = 0.75pt, round)\n   - Font family\n   - Color (names, hex, RGB)\n   - Bold, italic, underline, strikethrough\n   - Alignment (left, center, right, justify)\n   - Line spacing, space before/after\n   - Indent, bullets, numbering\n   - Background color\n   - Anything else valid in Google Docs\n\n4. Return ONLY valid JSON for `requests` array.\n5. NO explanations. NO markdown. NO extra text.\n\nEXAMPLE:\nInput: \"bold, red, 24px, center, Arial, 1.5 spacing\"\nOutput:\n{\n  \"requests\": [\n    { \"updateTextStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"textStyle\": { \"bold\": true }, \"fields\": \"bold\" } },\n    { \"updateTextStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"textStyle\": { \"foregroundColor\": { \"color\": { \"rgbColor\": { \"red\": 1 } } } }, \"fields\": \"foregroundColor\" } },\n    { \"updateTextStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"textStyle\": { \"fontSize\": { \"magnitude\": 18, \"unit\": \"PT\" } }, \"fields\": \"fontSize\" } },\n    { \"updateParagraphStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"paragraphStyle\": { \"alignment\": \"CENTER\" }, \"fields\": \"alignment\" } },\n    { \"updateTextStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"textStyle\": { \"weightedFontFamily\": { \"fontFamily\": \"Arial\" } }, \"fields\": \"weightedFontFamily\" } },\n    { \"updateParagraphStyle\": { \"range\": { \"startIndex\": 1, \"endIndex\": 999999 }, \"paragraphStyle\": { \"lineSpacing\": 150 }, \"fields\": \"lineSpacing\" } }\n  ]\n}\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "bc8e8d1b-f3f9-4a4e-830d-565dfdf33ba1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        912,
+        208
+      ],
+      "id": "83d6f898-e530-4b8b-a6f3-e546e029ad94",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "zJjCse9g4fhE8DO7",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1Z1q7F5yX-ZPfDp-CoOvmvMzWA8M6o9STaHtofxGA2bjpVzKUUlgwIUGueHLpnaIMqlUxu0E4",
+        "title": "riya first"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        1312,
+        720
+      ],
+      "id": "a097aa63-e5be-4dc3-9da4-129e8e1bdc60",
+      "name": "Create a document in Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "VeLisKIOThauC7f5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/1TUIUu49BsSa_8p_qnYwothypaZJQdByXAupB0zcC1aI/edit?tab=t.0",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "2afdd9e4-1d9e-4951-8967-3c8397eb3689",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "VeLisKIOThauC7f5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "=1TUIUu49BsSa_8p_qnYwothypaZJQdByXAupB0zcC1aI"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "fc8f966a-c708-4b9c-acc0-6718832786a9",
+      "name": "Get a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "6YgnhZOSLxDpCYl2",
+          "name": "Google Docs account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $json.searchQuery }}",
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8e2e955c-0b11-476a-82e8-008d40ad1be2",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "m1Lx5L7ViqdWGF64",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the user's full chat message\nconst fullMessage =$input.first()?.json?.chatInput || '';\n\n// Extract filename\nconst filenameMatch = fullMessage.match(/filename:\\s*(.+?)(?:\\n|$)/i);\nconst filename = filenameMatch ? filenameMatch[1].trim() : '';\n\n// Extract format string\nconst formatMatch = fullMessage.match(/format:\\s*(.+?)(?:\\n|$)/i);\nconst formatStr = formatMatch ? formatMatch[1].trim() : '';\n\n// Return clean, usable data\nreturn [{\n  json: {\n    searchQuery: filename,\n    formatString: formatStr,\n    originalMessage: fullMessage  // optional, for debugging\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "de2a3d68-801b-4e04-8ec8-4b28d83e4311",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Get a document').item.json.documentId }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1392,
+        0
+      ],
+      "id": "03350fda-2dcf-46f8-8511-f0cb9145a909",
+      "name": "HTTP Request",
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "kpv6icLG38aODafu",
+          "name": "Google account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document in Google Docs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a document": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Get a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "301de70f-0bc0-41e5-a2e1-c5cb8550f2d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "72f826f0f72eb6575d970928217e25c440dea432435cb0cf41e0551829da7f2a"
+  },
+  "id": "xItHxK2QojBmzugS",
+  "tags": []
+}
